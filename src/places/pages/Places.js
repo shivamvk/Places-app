@@ -13,7 +13,7 @@ const dummy_places= [
         creatorId:"u1",
         location:{
             lat:"40.7484405",
-            long:"-73.9878531"
+            lng:"-73.9878531"
         }
     },
     {
@@ -25,7 +25,7 @@ const dummy_places= [
         creatorId:"u2",
         location:{
             lat:"27.173891",
-            long:"78.042068"
+            lng:"78.042068"
         }
     }
 ];
