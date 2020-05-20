@@ -47,6 +47,10 @@ const NewPlace = (props) => {
         value: "",
         isValid: false,
       },
+      address: {
+        value: "",
+        isValid: false
+      }
     },
     isValid: false,
   });
@@ -74,7 +78,7 @@ const NewPlace = (props) => {
         label="Title"
         validators={[VALIDATOR_REQUIRE()]}
         onInput={inputHandler}
-        errorText="Please enter a valid title"
+        errorText="Please enter a valid title."
       />
       <Input
         id="description"
@@ -83,6 +87,15 @@ const NewPlace = (props) => {
         validators={[VALIDATOR_MINLENGTH(5)]}
         onInput={inputHandler}
         errorText="Please enter a valid description (at least 5 characters)."
+      />
+      <Input
+        id="address"
+        element="input"
+        type="text"
+        label="Address"
+        validators={[VALIDATOR_REQUIRE()]}
+        onInput={inputHandler}
+        errorText="Please enter a valid address."
       />
       <Button type="submit" disabled={!formState.isValid}>
         ADD PLACE
