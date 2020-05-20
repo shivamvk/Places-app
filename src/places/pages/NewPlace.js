@@ -6,7 +6,7 @@ import {
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/validotor";
 import Button from "../../shared/components/FormElements/Button";
-import "./NewPlace.css";
+import "./PlaceForm.css";
 
 const formReducer = (state, action) => {
   switch (action.type) {
@@ -66,7 +66,7 @@ const NewPlace = (props) => {
 
   const formSubmitHandler = event => {
     event.preventDefault();
-    console.log(formState.inputs);
+    console.log(formState.inputs); //send it to the backend
   }
 
   return (
