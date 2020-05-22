@@ -8,10 +8,17 @@ import Map from "../../shared/components/UIElements/Map";
 import "./PlaceItem.css";
 
 const PlaceItem = (props) => {
-
   const [showMap, setShowMap] = useState(false);
   const openMapHandler = () => setShowMap(true);
   const closeMapHandler = () => setShowMap(false);
+
+  const [showDeleteConfirmModal, setShowDelteConfirmModal] = useState(false);
+  const showDeleteConfirmModalHandler = () => setShowDelteConfirmModal(true);
+  const closeDeleteConfirmModalHandler = () => setShowDelteConfirmModal(false);
+  const deleteClickHandler = () => {
+    setShowDelteConfirmModal(false);
+    console.log("DELETING...");
+  }
 
   return (
     <React.Fragment>
@@ -26,6 +33,19 @@ const PlaceItem = (props) => {
             <Map center={props.location} zoom={16}/>
           </div>
       </Modal>
+      <Modal
+        show={showDeleteConfirmModal}
+        onCancel={closeDeleteConfirmModalHandler}
+        header={<p>Are you sure?</p>}
+        footerClass="place-item__modal-actions"
+        footer={
+          <React.Fragment>
+            <Button onClick={closeDeleteConfirmModalHandler}>CANCEL</Button>
+            <Button onClick={deleteClickHandler}>DELETE</Button>
+          </React.Fragment>
+        }>
+        <p>Please confirm that you want to delete this place!</p>
+      </Modal>
       <li className="place-item">
         <Card className="place-item__content">
           <div className="place-item__image">
@@ -39,7 +59,7 @@ const PlaceItem = (props) => {
           <div className="place-item__actions">
             <Button inverse onClick={openMapHandler}>View on map</Button>
             <Button to={`/places/${props.id}`}>Edit</Button>
-            <Button danger>Delete</Button>
+            <Button danger onClick={showDeleteConfirmModalHandler}>Delete</Button>
           </div>
         </Card>
       </li>
