@@ -5,21 +5,26 @@ import Input from "../../shared/components/FormElements/Input";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
+  VALIDATOR_REQUIRE,
 } from "../../shared/util/validotor";
 import Button from "../../shared/components/FormElements/Button";
 import { useForm } from "../../shared/hooks/form-hook";
-
-import "./Login.css";
 import { useHttpClient } from "../../shared/hooks/http-hook";
-import { AuthContext } from "../../shared/context/auth-context";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import "./Login.css";
+import { AuthContext } from "../../shared/context/auth-context";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
-const Login = (props) => {
+const Signup = (props) => {
   const auth = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
+
   const [formState, inputHandler] = useForm(
     {
+      name: {
+        value: "",
+        isValid: false,
+      },
       email: {
         value: "",
         isValid: false,
@@ -36,16 +41,17 @@ const Login = (props) => {
     event.preventDefault();
     try {
       const data = await sendRequest(
-        "http://localhost:5000/api/users/login",
+        "http://localhost:5000/api/users/signup",
         "POST",
         JSON.stringify({
+          name: formState.inputs.name.value,
           email: formState.inputs.email.value,
           password: formState.inputs.password.value,
         }),
         { "Content-type": "application/json" }
       );
       auth.login(data.user.id);
-    } catch (error) {}
+    } catch (err) {}
   };
 
   return (
@@ -54,6 +60,15 @@ const Login = (props) => {
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
         <form onSubmit={formSubmitHandler}>
+          <Input
+            id="name"
+            element="input"
+            type="text"
+            label="Name"
+            validators={[VALIDATOR_REQUIRE()]}
+            errorText="Please enter a valid name."
+            onInput={inputHandler}
+          />
           <Input
             id="email"
             element="input"
@@ -72,11 +87,11 @@ const Login = (props) => {
             errorText="Please enter a valid password (at least 6 characters)."
             onInput={inputHandler}
           />
-          <Button disabled={!formState.isValid}>LOGIN</Button>
+          <Button disabled={!formState.isValid}>Signup</Button>
         </form>
       </Card>
     </>
   );
 };
 
-export default Login;
+export default Signup;

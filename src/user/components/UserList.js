@@ -22,7 +22,7 @@ const UserList = (props) => {
             id={user.id}
             name={user.name}
             image={user.image}
-            places={user.places}
+            places={user.places.length}
           />
         );
       })}
