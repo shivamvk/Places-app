@@ -12,9 +12,11 @@ import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { useHistory } from "react-router-dom";
 
 const NewPlace = (props) => {
   const auth = useContext(AuthContext);
+  const history = useHistory();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler] = useForm(
     {
@@ -37,17 +39,20 @@ const NewPlace = (props) => {
   const formSubmitHandler = async (event) => {
     event.preventDefault();
     try {
+      const body = {
+        title: formState.inputs.title.value,
+        description: formState.inputs.description.value,
+        address: formState.inputs.address.value,
+        creator: auth.userId,
+      };
+      console.log(body);
       await sendRequest(
         "http://localhost:5000/api/places/",
         "POST",
-        JSON.stringify({
-          title: formState.inputs.title.value,
-          description: formState.inputs.description.value,
-          address: formState.inputs.address.value,
-          creator: auth.userId,
-        }),
+        JSON.stringify(body),
         { "Content-Type": "application/json" }
       );
+      history.push(`${auth.userId}/places`);
     } catch (err) {}
   };
 

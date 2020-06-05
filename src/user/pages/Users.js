@@ -24,7 +24,7 @@ const Users = (props) => {
       <ErrorModal error={error} onClear={clearError} />
       {isLoading && (
         <div className="center">
-          <LoadingSpinner />
+          <LoadingSpinner asOverlay/>
         </div>
       )}
       {!isLoading && loadedUsers && <UserList items={loadedUsers} />}

@@ -42,7 +42,7 @@ const App = () => {
         <Route path="/places/new" exact>
           <NewPlace />
         </Route>
-        <Route path="/places/:placeId">
+        <Route path="/places/:placeId" exact>
           <UpdatePlace />
         </Route>
         <Redirect to="/" />
@@ -50,7 +50,7 @@ const App = () => {
     );
   } else {
     routes = (
-      <Switch>
+      <Switch>  
         <Route path="/" exact>
           <Users />
         </Route>

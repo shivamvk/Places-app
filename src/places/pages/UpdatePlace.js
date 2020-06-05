@@ -1,5 +1,5 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useHistory } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
@@ -10,87 +10,123 @@ import {
 import { useForm } from "../../shared/hooks/form-hook.js";
 
 import "./PlaceForm.css";
-
-const dummy_places = [
-  {
-    id: "p1",
-    title: "Empire state building",
-    description: "Best building in the world",
-    image:
-      "https://cropper.watch.aetnd.com/public-content-aetn.video.aetnd.com/video-thumbnails/AETN-History_VMS/21/202/tdih-may01-HD.jpg?w=1440",
-    address: "bla bla new york USA",
-    creatorId: "u1",
-    location: {
-      lat: "40.7484405",
-      lng: "-73.9878531",
-    },
-  },
-  {
-    id: "p2",
-    title: "Taj Mahal",
-    description: "Best building in the India",
-    image:
-      "https://cdn.britannica.com/86/170586-050-AB7FEFAE/Taj-Mahal-Agra-India.jpg",
-    address: "Agra Uttar Pradesh India",
-    creatorId: "u2",
-    location: {
-      lat: "27.173891",
-      lng: "78.042068",
-    },
-  },
-];
+import { useHttpClient } from "../../shared/hooks/http-hook";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import { AuthContext } from "../../shared/context/auth-context";
 
 const UpdatePlace = (props) => {
   const placeId = useParams().placeId;
-  const identifiedPlace = dummy_places.find((p) => p.id === placeId);
-  
-  const [formState, inputHandler] = useForm({
-    title: {
-      value: identifiedPlace.title,
-      isValid: true,
-    },
-    description: {
-      value: identifiedPlace.description,
-      isValid: true,
-    },
-  }, true);
+  const auth = useContext(AuthContext);
+  const history = useHistory();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const [identifiedPlace, setIdentifiedPlace] = useState();
 
-  const submitHandler = (event) => {
+  const [formState, inputHandler, setFormData] = useForm(
+    {
+      title: {
+        value: "",
+        isValid: true,
+      },
+      description: {
+        value: "",
+        isValid: true,
+      },
+    },
+    true
+  );
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const data = await sendRequest(
+          `http://localhost:5000/api/places/${placeId}`
+        );
+        setIdentifiedPlace(data.place);
+        console.log(data.place);
+        setFormData(
+          {
+            title: {
+              value: data.place.title,
+              isValid: true,
+            },
+            description: {
+              value: data.place.description,
+              isValid: true,
+            },
+          },
+          true
+        );
+      } catch (err) {}
+    };
+    fetchPlaces();
+  }, [sendRequest, placeId, setFormData]);
+
+  const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs); // send it to backend
+    try {
+      await sendRequest(
+        `http://localhost:5000/api/places/${placeId}`,
+        "PATCH",
+        JSON.stringify({
+          title: formState.inputs.title.value,
+          description: formState.inputs.description.value
+        }),
+        { "Content-Type": "application/json" }
+        );
+        history.push(`/${auth.userId}/places`);
+    } catch (err) {}
+  };
+
+  if (isLoading) {
+    return (
+      <div className="center">
+        <LoadingSpinner asOverlay />
+      </div>
+    );
   }
-  
-  if (!identifiedPlace) {
-    return <div className="center">Couldn't find the place</div>;
+
+  if (!identifiedPlace && !error) {
+    return (
+      <div className="center">
+        <h2>Could not find place!</h2>
+      </div>
+    );
   }
 
   return (
-    <form className="place-form" onSubmit={submitHandler}>
-      <Input
-        id="title"
-        element="input"
-        type="text"
-        label="Title"
-        validators={[VALIDATOR_REQUIRE()]}
-        onInput={inputHandler}
-        value={formState.inputs.title.value}
-        isValid={formState.inputs.title.isValid}
-        errorText="Please enter a valid title."
-      />
-      <Input
-        id="description"
-        element="textarea"
-        label="Description"
-        validators={[VALIDATOR_MINLENGTH(5)]}
-        onInput={inputHandler}
-        value={formState.inputs.description.value}
-        isValid={formState.inputs.description.isValid}
-        errorText="Please enter a valid description (at least 5 characters)"
-      />
-      <Button type="submit" disabled={!formState.isValid}>
-        UPDATE PLACE
-      </Button>
-    </form>
+    <>
+      <ErrorModal error={error} onClear={clearError} />
+      {isLoading && <LoadingSpinner asOverlay />}
+      {!isLoading && identifiedPlace && (
+        <form className="place-form" onSubmit={submitHandler}>
+          <Input
+            id="title"
+            element="input"
+            type="text"
+            label="Title"
+            validators={[VALIDATOR_REQUIRE()]}
+            onInput={inputHandler}
+            value={identifiedPlace.title}
+            isValid={true}
+            errorText="Please enter a valid title."
+          />
+          <Input
+            id="description"
+            element="textarea"
+            label="Description"
+            validators={[VALIDATOR_MINLENGTH(5)]}
+            onInput={inputHandler}
+            value={identifiedPlace.description}
+            isValid={true}
+            errorText="Please enter a valid description (at least 5 characters)"
+          />
+          <Button type="submit" disabled={!formState.isValid}>
+            UPDATE PLACE
+          </Button>
+        </form>
+      )}
+    </>
   );
 };
 
