@@ -64,7 +64,7 @@ const NewPlace = (props) => {
       <ErrorModal error={error} onClear={clearError} />
       <form className="place-form" onSubmit={formSubmitHandler}>
         {isLoading && <LoadingSpinner asOverlay />}
-        <ImageUpload id="image" onInput={inputHandler} center />
+        <ImageUpload id="image" onInput={inputHandler} />
         <Input
           id="title"
           element="input"

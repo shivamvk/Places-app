@@ -45,7 +45,7 @@ const Login = (props) => {
         { "Content-type": "application/json" }
       );
       console.log(data);
-      auth.login(data.userId, data.token);
+      auth.login(data.userId, data.token, undefined);
     } catch (error) {}
   };
 
