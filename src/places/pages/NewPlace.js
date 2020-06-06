@@ -13,6 +13,7 @@ import { AuthContext } from "../../shared/context/auth-context";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { useHistory } from "react-router-dom";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 
 const NewPlace = (props) => {
   const auth = useContext(AuthContext);
@@ -32,6 +33,10 @@ const NewPlace = (props) => {
         value: "",
         isValid: false,
       },
+      image: {
+        value: null,
+        isValid: false,
+      },
     },
     false
   );
@@ -39,19 +44,17 @@ const NewPlace = (props) => {
   const formSubmitHandler = async (event) => {
     event.preventDefault();
     try {
-      const body = {
-        title: formState.inputs.title.value,
-        description: formState.inputs.description.value,
-        address: formState.inputs.address.value,
-        creator: auth.userId,
-      };
-      console.log(body);
-      await sendRequest(
-        "http://localhost:5000/api/places/",
-        "POST",
-        JSON.stringify(body),
-        { "Content-Type": "application/json" }
-      );
+      const formData = new FormData();
+      formData.append("title", formState.inputs.title.value);
+      formData.append("description", formState.inputs.description.value);
+      formData.append("address", formState.inputs.address.value);
+      formData.append("image", formState.inputs.image.value);
+      formData.append("creator", auth.userId);
+
+      console.log(formData);
+      await sendRequest("http://localhost:5000/api/places/", "POST", formData, {
+        Authorization: "Bearer " + auth.token,
+      });
       history.push(`${auth.userId}/places`);
     } catch (err) {}
   };
@@ -61,6 +64,7 @@ const NewPlace = (props) => {
       <ErrorModal error={error} onClear={clearError} />
       <form className="place-form" onSubmit={formSubmitHandler}>
         {isLoading && <LoadingSpinner asOverlay />}
+        <ImageUpload id="image" onInput={inputHandler} center />
         <Input
           id="title"
           element="input"

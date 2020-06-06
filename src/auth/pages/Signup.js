@@ -14,6 +14,7 @@ import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import "./Login.css";
 import { AuthContext } from "../../shared/context/auth-context";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 
 const Signup = (props) => {
   const auth = useContext(AuthContext);
@@ -33,25 +34,33 @@ const Signup = (props) => {
         value: "",
         isValid: false,
       },
+      image: {
+        value: null,
+        isValid: false,
+      },
     },
     false
   );
 
   const formSubmitHandler = async (event) => {
     event.preventDefault();
+    console.log(formState.inputs);
     try {
+      const formData = new FormData();
+      formData.append("email", formState.inputs.email.value);
+      formData.append("name", formState.inputs.name.value);
+      formData.append("password", formState.inputs.password.value);
+      formData.append("image", formState.inputs.image.value);
       const data = await sendRequest(
         "http://localhost:5000/api/users/signup",
         "POST",
-        JSON.stringify({
-          name: formState.inputs.name.value,
-          email: formState.inputs.email.value,
-          password: formState.inputs.password.value,
-        }),
-        { "Content-type": "application/json" }
+        formData
       );
-      auth.login(data.user.id);
-    } catch (err) {}
+      console.log(data);
+      auth.login(data.userId, data.token);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -60,6 +69,12 @@ const Signup = (props) => {
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
         <form onSubmit={formSubmitHandler}>
+          <ImageUpload
+            id="image"
+            onInput={inputHandler}
+            errorText="Plesae provide an image"
+            center
+          />
           <Input
             id="name"
             element="input"

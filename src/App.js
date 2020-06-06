@@ -17,10 +17,12 @@ import Signup from "./auth/pages/Signup";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [token, setToken] = useState();
   const [userId, setUserId] = useState();
-  const login = useCallback((uid) => {
+  const login = useCallback((uid, token) => {
     setIsLoggedIn(true);
     setUserId(uid);
+    setToken(token);
   }, []);
 
   const logout = useCallback(() => {
@@ -50,7 +52,7 @@ const App = () => {
     );
   } else {
     routes = (
-      <Switch>  
+      <Switch>
         <Route path="/" exact>
           <Users />
         </Route>
@@ -72,6 +74,7 @@ const App = () => {
     <AuthContext.Provider
       value={{
         isLoggedIn: isLoggedIn,
+        token: token,
         userId: userId,
         login: login,
         logout: logout,
