@@ -1,5 +1,7 @@
 # Places-app
 
+This project is now live on [https://places-app-16753.web.app](https://places-app-16753.web.app)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
